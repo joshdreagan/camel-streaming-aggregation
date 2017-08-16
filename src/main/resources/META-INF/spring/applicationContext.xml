@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:camel="http://camel.apache.org/schema/spring"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+  
+  <bean id="memoryAggregationRepository" class="org.apache.camel.processor.aggregate.MemoryAggregationRepository"/>
+  
+  <bean id="semiStreamingAggregationStrategy" class="org.apache.camel.examples.SemiStreamingAggregationStrategy">
+    <property name="aggregateProcessorId" value="aggregateProcessor"/>
+    <property name="sequenceIdHeaderName" value="MySequenceID"/>
+  </bean>
+  
+  <camelContext xmlns="http://camel.apache.org/schema/spring">
+    
+    <route id="resequencerRoute">
+      <from uri="direct:semiStreamingResequencer"/>
+      <aggregate id="aggregateProcessor" 
+                 strategyRef="semiStreamingAggregationStrategy" 
+                 aggregationRepositoryRef="memoryAggregationRepository">
+        <correlationExpression>
+          <header>MyGroupingID</header>
+        </correlationExpression>
+        <completionSize>
+          <header>MySequenceSize</header>
+        </completionSize>
+        <split streaming="false" parallelProcessing="false">
+          <simple>body</simple>
+          <log id="processMessage" message="Processed message [${body}]."/>
+        </split>
+      </aggregate>
+    </route>
+    
+  </camelContext>
+
+</beans>
