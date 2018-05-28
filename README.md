@@ -1,1 +1,1 @@
-# camel-complex-aggregation
+# camel-streaming-aggregation
