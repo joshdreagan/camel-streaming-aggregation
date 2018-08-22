@@ -82,12 +82,7 @@ public class SemiStreamingAggregationStrategy implements AggregationStrategy, Ca
 
   protected Comparator<Message> _messageComparator() {
     if (_messageComparator == null) {
-      _messageComparator = new Comparator<Message>() {
-        @Override
-        public int compare(Message t, Message t1) {
-          return t.getHeader(sequenceIdHeaderName, Comparable.class).compareTo(t1.getHeader(sequenceIdHeaderName, Comparable.class));
-        }
-      };
+      _messageComparator = (Message t, Message t1) -> t.getHeader(sequenceIdHeaderName, Comparable.class).compareTo(t1.getHeader(sequenceIdHeaderName, Comparable.class));
     }
     return _messageComparator;
   }

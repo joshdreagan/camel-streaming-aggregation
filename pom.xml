@@ -27,8 +27,8 @@ limitations under the License.
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
 
-    <camel.version>2.19.2</camel.version>
-    <slf4j.version>1.7.21</slf4j.version>
+    <camel.version>2.21.0</camel.version>
+    <slf4j.version>1.7.25</slf4j.version>
   </properties>
 
   <dependencies>

@@ -14,13 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.examples.camel;
+package org.apache.camel.examples;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.camel.CamelContext;
 import org.apache.camel.EndpointInject;
 import org.apache.camel.Produce;
@@ -49,6 +50,8 @@ public class MessageResequencerTest {
 
   @Autowired
   private CamelContext camelContext;
+  
+  private final AtomicBoolean adviced = new AtomicBoolean(false);
 
   @Produce(uri = "direct:semiStreamingResequencer")
   private ProducerTemplate producer;
@@ -58,15 +61,18 @@ public class MessageResequencerTest {
 
   @Before
   public void adviceResequencerRoute() throws Exception {
-    camelContext.getRouteDefinition("resequencerRoute").adviceWith(camelContext.adapt(ModelCamelContext.class), new AdviceWithRouteBuilder() {
-      @Override
-      public void configure() throws Exception {
-        weaveById("processMessage")
-                .after()
-                .to(mock);
-      }
-    });
-    camelContext.start();
+    if (!adviced.get()) {
+      camelContext.getRouteDefinition("resequencerRoute").adviceWith(camelContext.adapt(ModelCamelContext.class), new AdviceWithRouteBuilder() {
+        @Override
+        public void configure() throws Exception {
+          weaveById("processMessage")
+            .after()
+            .to(mock);
+        }
+      });
+      camelContext.start();
+      adviced.set(true);
+    }
   }
 
   @Test
